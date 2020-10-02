@@ -3,11 +3,17 @@ package com.tiago.moedas;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tiago.moedas.model.Currency;
+import com.tiago.moedas.service.HTTPService;
+
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -39,8 +45,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else{
                 Double real = Double.valueOf(value);
 
-                this.mViewHolder.textDolar.setText(String.format("%.2f", (real/4)));
-                this.mViewHolder.textEuro.setText(String.format("%.2f", (real/5)));
+                HTTPService service = new HTTPService();
+                try {
+                    Currency response = service.execute().get();
+
+                    this.mViewHolder.textDolar.setText(String.format("%.2f", (real/response.getResponse().getDollar())));
+                    this.mViewHolder.textEuro.setText(String.format("%.2f", (real/response.getResponse().getEuro())));
+
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
             }
         }
     }
